@@ -33,6 +33,44 @@ npm run build
 npm run preview
 ```
 
+Run production server locally (same entrypoint Railway uses):
+
+```bash
+npm run build
+npm run start
+```
+
+## Deploy on Railway
+
+This repo is configured for Railway out of the box.
+
+### Included Railway-ready files
+
+- `railway.json` (deploy config + healthcheck path)
+- `server.js` (Express static server for `dist`)
+- `package.json` `start` script (`node server.js`)
+
+### One-click deployment steps
+
+1. Push this repo/branch to GitHub.
+2. In Railway, create **New Project → Deploy from GitHub Repo**.
+3. Select this repository.
+4. Railway will:
+   - run `npm install`
+   - run `npm run build`
+   - run `npm run start`
+5. Once deployed, open the generated Railway domain.
+
+### Healthcheck
+
+- Endpoint: `/health`
+- Configured in `railway.json`
+
+### Environment variables
+
+- No required env vars for demo/local state mode.
+- Railway provides `PORT` automatically; `server.js` reads it.
+
 ## Password Flow
 
 Users must scroll to the bottom panel and enter the password.
