@@ -13,7 +13,7 @@ export interface RealtimeAdapter {
 }
 
 /**
- * Local adapter used in demo mode.
+ * No-op adapter for frontend-only deployments.
  * Swap this with a Firebase/Socket.io implementation for true realtime sync.
  */
 export const localRealtimeAdapter: RealtimeAdapter = {

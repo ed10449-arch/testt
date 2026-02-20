@@ -4,6 +4,11 @@ import { ChevronDown } from "lucide-react";
 import gsap from "gsap";
 
 const schoolIcons = ["📚", "📘", "📝", "✏️", "📐", "🎓"];
+const highlights = [
+  "Morning homeroom check-ins",
+  "Assignment board and due dates",
+  "Club activities and announcements",
+];
 
 export default function HeroSection() {
   const iconRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -14,9 +19,9 @@ export default function HeroSection() {
         return null;
       }
       return gsap.to(node, {
-        y: index % 2 === 0 ? -14 : 14,
+        y: index % 2 === 0 ? -10 : 10,
         rotation: index % 2 === 0 ? -6 : 6,
-        duration: 1.8 + index * 0.2,
+        duration: 2.4 + index * 0.2,
         ease: "sine.inOut",
         yoyo: true,
         repeat: -1,
@@ -38,24 +43,24 @@ export default function HeroSection() {
           className="space-y-6"
         >
           <p className="inline-flex rounded-full border border-border bg-surface px-3 py-1 text-sm font-medium text-muted">
-            Classroom Collaboration Space
+            School Activities Main Page
           </p>
           <h1 className="text-4xl font-black leading-tight md:text-6xl">
-            Study together.
+            Plan your school day.
             <br />
-            Chat smarter.
+            Track activities.
             <br />
-            Learn faster.
+            Stay on schedule.
           </h1>
           <p className="max-w-xl text-lg text-muted">
-            An educational chat room with profile-based entry, polished motion,
-            and a delightful student-first interface.
+            A student-friendly dashboard for assignments, classroom updates, and
+            team activity planning, with a compact collaboration feed.
           </p>
           <a
             href="#password-panel"
             className="inline-flex items-center gap-2 rounded-full bg-accent px-5 py-3 text-sm font-semibold text-white shadow-soft transition hover:brightness-110"
           >
-            Scroll to unlock
+            Open activity portal
             <ChevronDown size={18} />
           </a>
         </motion.div>
@@ -66,22 +71,27 @@ export default function HeroSection() {
           transition={{ duration: 0.55, delay: 0.1 }}
           className="glass-card relative rounded-3xl p-6 shadow-soft"
         >
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             {schoolIcons.map((icon, index) => (
               <div
                 key={`${icon}-${index}`}
                 ref={(node) => {
                   iconRefs.current[index] = node;
                 }}
-                className="flex h-20 items-center justify-center rounded-2xl border border-border bg-surface text-3xl shadow-soft"
+                className="flex h-16 items-center justify-center rounded-2xl border border-border bg-surface text-2xl shadow-soft"
               >
                 {icon}
               </div>
             ))}
           </div>
-          <p className="mt-4 text-center text-sm text-muted">
-            Animated educational icons powered by GSAP.
-          </p>
+          <div className="mt-4 rounded-2xl border border-border bg-surface/80 p-4">
+            <p className="text-sm font-semibold">Today&apos;s focus</p>
+            <ul className="mt-2 space-y-1 text-sm text-muted">
+              {highlights.map((item) => (
+                <li key={item}>• {item}</li>
+              ))}
+            </ul>
+          </div>
         </motion.div>
       </div>
     </section>

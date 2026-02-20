@@ -10,7 +10,7 @@ export default function LandingPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="h-screen overflow-y-auto scroll-smooth snap-y snap-mandatory"
+      className="h-screen overflow-y-auto scroll-smooth snap-y snap-proximity"
     >
       <HeroSection />
       <AboutSection />

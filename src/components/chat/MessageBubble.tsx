@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { memo } from "react";
 import { PencilLine, Trash2 } from "lucide-react";
 import type { ChatMessage, ProfileId, UserProfile } from "../../types/chat";
 import { formatTime } from "../../utils/time";
@@ -8,6 +8,7 @@ const QUICK_REACTIONS = ["👍", "❤️", "😂", "📚", "🔥"];
 interface MessageBubbleProps {
   message: ChatMessage;
   isOwn: boolean;
+  compact?: boolean;
   authorProfile: UserProfile;
   currentProfileId: ProfileId;
   onEditRequest: (message: ChatMessage) => void;
@@ -15,9 +16,10 @@ interface MessageBubbleProps {
   onToggleReaction: (messageId: string, emoji: string) => void;
 }
 
-export default function MessageBubble({
+function MessageBubble({
   message,
   isOwn,
+  compact = false,
   authorProfile,
   currentProfileId,
   onEditRequest,
@@ -25,28 +27,26 @@ export default function MessageBubble({
   onToggleReaction,
 }: MessageBubbleProps) {
   return (
-    <motion.article
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      className={`group flex w-full ${isOwn ? "justify-end" : "justify-start"}`}
-    >
+    <article className={`group flex w-full ${isOwn ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[90%] rounded-2xl border px-4 py-3 shadow-soft sm:max-w-[75%] ${
+        className={`max-w-[95%] rounded-2xl border shadow-soft sm:max-w-[82%] ${
           isOwn
             ? "border-cyan-400/35 bg-cyan-500/15"
             : "border-border bg-surface text-text"
-        }`}
+        } ${compact ? "px-3 py-2" : "px-4 py-3"}`}
       >
-        <div className="mb-1 flex items-center gap-2">
+        <div className={`mb-1 flex items-center gap-2 ${compact ? "text-[11px]" : ""}`}>
           <span className="text-xs font-semibold text-muted">
             {authorProfile.name}
           </span>
-          <span className="text-base">{authorProfile.avatar}</span>
+          <span className={compact ? "text-sm" : "text-base"}>{authorProfile.avatar}</span>
         </div>
 
-        <p className="whitespace-pre-wrap text-sm leading-relaxed">{message.text}</p>
+        <p className={`whitespace-pre-wrap ${compact ? "text-xs leading-snug" : "text-sm leading-relaxed"}`}>
+          {message.text}
+        </p>
 
-        <div className="mt-2 flex flex-wrap items-center gap-2">
+        <div className={`mt-2 flex flex-wrap items-center gap-2 ${compact ? "text-[10px]" : ""}`}>
           <span className="text-[11px] text-muted">
             {formatTime(message.createdAt)}
             {message.editedAt ? " • edited" : ""}
@@ -79,11 +79,11 @@ export default function MessageBubble({
               <button
                 key={emoji}
                 onClick={() => onToggleReaction(message.id, emoji)}
-                className={`rounded-full border px-2 py-0.5 text-xs transition ${
+                className={`rounded-full border transition ${
                   isActive
                     ? "border-accent bg-accent/15 text-accent"
                     : "border-border bg-surface text-muted hover:text-text"
-                }`}
+                } ${compact ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-xs"}`}
                 title="Toggle reaction"
               >
                 {emoji} {userIds.length}
@@ -97,7 +97,9 @@ export default function MessageBubble({
             <button
               key={emoji}
               onClick={() => onToggleReaction(message.id, emoji)}
-              className="rounded-full border border-border bg-surface px-2 py-0.5 text-xs text-muted transition hover:scale-105 hover:text-text"
+              className={`rounded-full border border-border bg-surface text-muted transition hover:scale-105 hover:text-text ${
+                compact ? "px-1.5 py-0.5 text-[10px]" : "px-2 py-0.5 text-xs"
+              }`}
               title={`React with ${emoji}`}
             >
               {emoji}
@@ -105,6 +107,8 @@ export default function MessageBubble({
           ))}
         </div>
       </div>
-    </motion.article>
+    </article>
   );
 }
+
+export default memo(MessageBubble);

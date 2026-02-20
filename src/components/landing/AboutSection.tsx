@@ -1,24 +1,24 @@
 import { motion } from "framer-motion";
-import { BookOpen, Sparkles, Users } from "lucide-react";
+import { BookOpen, CalendarDays, ClipboardCheck } from "lucide-react";
 
 const features = [
   {
     icon: BookOpen,
-    title: "Focus on Learning",
+    title: "Daily Learning Flow",
     description:
-      "Organize homework, revision, and class prep with clean conversation flows.",
+      "Keep assignments, revision sessions, and in-class tasks structured in one place.",
   },
   {
-    icon: Users,
-    title: "Profile-based Entry",
+    icon: CalendarDays,
+    title: "Activity Timeline",
     description:
-      "Students enter with personalized identities so every message feels contextual.",
+      "See what is happening now, what is due next, and what is planned for the week.",
   },
   {
-    icon: Sparkles,
-    title: "Animated Experience",
+    icon: ClipboardCheck,
+    title: "Quick Coordination",
     description:
-      "Smooth transitions and micro-interactions keep the chat playful and engaging.",
+      "Use the compact feed for short updates without taking focus away from school work.",
   },
 ];
 
@@ -34,15 +34,14 @@ export default function AboutSection() {
           className="space-y-3"
         >
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-accent">
-            About This Classroom
+            About This School Hub
           </p>
           <h2 className="text-3xl font-black md:text-5xl">
-            Built for collaborative study sessions.
+            Built around school activities first.
           </h2>
           <p className="max-w-2xl text-lg text-muted">
-            This classroom chat focuses on clarity, motivation, and smooth
-            interaction design. It works beautifully on desktop, tablet, and
-            mobile.
+            This interface prioritizes classes, assignments, and announcements,
+            while keeping collaboration lightweight and easy to access.
           </p>
         </motion.div>
 

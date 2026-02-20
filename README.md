@@ -1,11 +1,12 @@
 # Classroom Chat Interface
 
-A fully styled educational chat-room web app with:
+A fully styled school activity portal web app with:
 
 - Animated landing page with smooth vertical scrolling
 - Password gate (demo password: `0327`)
 - Profile selection (Alli / Eddie)
-- Interactive chat room with reactions, edit/delete, typing indicator, timestamps, and emoji support
+- School activity dashboard + compact team update feed
+- Compact feed with reactions, edit/delete, timestamps, and emoji support
 - Light/Dark theme toggle with CSS variable-driven theming
 - Framer Motion + GSAP animation support
 - Zustand state management and persistence
@@ -169,4 +170,4 @@ Recommended backend options:
 
 - This is intentionally lightweight and front-end focused.
 - Data is persisted in local storage via Zustand middleware.
-- For demo mode, the partner reply is simulated to provide realtime-like behavior.
+- No simulated bot replies are used; feed messages are user-authored unless you wire a realtime backend adapter.

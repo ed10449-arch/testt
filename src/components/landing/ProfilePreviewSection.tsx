@@ -13,10 +13,10 @@ export default function ProfilePreviewSection() {
           className="mb-8 text-center"
         >
           <h2 className="text-3xl font-black md:text-5xl">
-            Meet your study partners
+            Student dashboard profiles
           </h2>
           <p className="mt-3 text-muted">
-            Choose Alli or Eddie after entering the classroom password.
+            Choose Alli or Eddie to open the same activity portal with a personal identity.
           </p>
         </motion.div>
 
@@ -39,8 +39,7 @@ export default function ProfilePreviewSection() {
               <h3 className="text-2xl font-bold">{profile.name}</h3>
               <p className="mt-1 text-muted">{profile.subtitle}</p>
               <p className="mt-4 text-sm text-muted">
-                Scroll down to unlock the classroom and continue as {profile.name}
-                .
+                Scroll to unlock the portal and continue as {profile.name}.
               </p>
             </motion.div>
           ))}

@@ -15,7 +15,7 @@ export default function ProfileSelection() {
             Access Granted
           </p>
           <h1 className="mt-3 text-3xl font-black md:text-5xl">
-            Choose your profile to enter the chat
+            Choose your profile to open the activity page
           </h1>
         </div>
 
@@ -39,7 +39,7 @@ export default function ProfileSelection() {
               <h2 className="text-2xl font-black">{profile.name}</h2>
               <p className="text-muted">{profile.subtitle}</p>
               <p className="mt-3 text-sm text-muted transition group-hover:text-text">
-                Click to enter as {profile.name}.
+                Continue as {profile.name}.
               </p>
             </motion.button>
           ))}

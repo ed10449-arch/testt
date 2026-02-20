@@ -8,7 +8,6 @@ interface AppState {
   passwordUnlocked: boolean;
   activeProfileId: ProfileId | null;
   messages: ChatMessage[];
-  typingByProfile: Record<ProfileId, boolean>;
   toggleTheme: () => void;
   unlockGate: () => void;
   lockGate: () => void;
@@ -18,36 +17,7 @@ interface AppState {
   editMessage: (messageId: string, nextText: string, requesterId: ProfileId) => void;
   deleteMessage: (messageId: string, requesterId: ProfileId) => void;
   toggleReaction: (messageId: string, emoji: string, requesterId: ProfileId) => void;
-  setTyping: (profileId: ProfileId, isTyping: boolean) => void;
 }
-
-const now = Date.now();
-
-const seedMessages: ChatMessage[] = [
-  {
-    id: createMessageId(),
-    authorId: "alli",
-    text: "Hey Eddie! Are you ready for the science review notes?",
-    createdAt: new Date(now - 1000 * 60 * 14).toISOString(),
-    reactions: {},
-  },
-  {
-    id: createMessageId(),
-    authorId: "eddie",
-    text: "Yes! I already made a checklist. Let's make it fun 📚",
-    createdAt: new Date(now - 1000 * 60 * 12).toISOString(),
-    reactions: {
-      "🔥": ["alli"],
-    },
-  },
-  {
-    id: createMessageId(),
-    authorId: "alli",
-    text: "Perfect. I'll summarize chapter 3 while you collect formulas.",
-    createdAt: new Date(now - 1000 * 60 * 10).toISOString(),
-    reactions: {},
-  },
-];
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -55,11 +25,7 @@ export const useAppStore = create<AppState>()(
       theme: "light",
       passwordUnlocked: false,
       activeProfileId: null,
-      messages: seedMessages,
-      typingByProfile: {
-        alli: false,
-        eddie: false,
-      },
+      messages: [],
       toggleTheme: () =>
         set((state) => ({
           theme: state.theme === "light" ? "dark" : "light",
@@ -141,17 +107,21 @@ export const useAppStore = create<AppState>()(
             };
           }),
         })),
-      setTyping: (profileId, isTyping) =>
-        set((state) => ({
-          typingByProfile: {
-            ...state.typingByProfile,
-            [profileId]: isTyping,
-          },
-        })),
     }),
     {
       name: "classroom-chat-storage",
+      version: 2,
       storage: createJSONStorage(() => localStorage),
+      migrate: (persistedState, version) => {
+        const state = (persistedState ?? {}) as Partial<AppState>;
+        if (version < 2 && persistedState) {
+          return {
+            ...state,
+            messages: [],
+          };
+        }
+        return state;
+      },
       partialize: (state) => ({
         theme: state.theme,
         passwordUnlocked: state.passwordUnlocked,

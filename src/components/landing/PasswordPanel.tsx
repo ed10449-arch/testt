@@ -22,6 +22,7 @@ export default function PasswordPanel() {
     }
 
     setHasError(false);
+    setIsLoading(false);
     unlockGate();
   }
 
@@ -45,10 +46,10 @@ export default function PasswordPanel() {
             Password Gate Access
           </p>
           <h2 className="text-2xl font-black md:text-4xl">
-            Enter the classroom code to continue
+            Enter the school access code to continue
           </h2>
           <p className="mt-3 text-muted">
-            Demo hint: the correct password is a four-digit birthday code.
+            Ask your teacher for the secure four-digit code.
           </p>
 
           <form className="mt-6 space-y-3" onSubmit={handleSubmit}>
