@@ -15,7 +15,7 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok" });
 });
 
-app.get("*", (_req, res) => {
+app.use((_req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
