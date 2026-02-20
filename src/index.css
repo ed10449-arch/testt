@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-bg: 245 247 255;
+  --color-surface: 255 255 255;
+  --color-text: 18 24 38;
+  --color-muted: 98 109 130;
+  --color-border: 216 222 235;
+  --color-accent: 37 99 235;
+}
+
+[data-theme="dark"] {
+  --color-bg: 11 15 26;
+  --color-surface: 20 27 45;
+  --color-text: 232 238 249;
+  --color-muted: 147 161 189;
+  --color-border: 47 62 92;
+  --color-accent: 56 189 248;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  font-family:
+    "Inter",
+    "Avenir Next",
+    "Segoe UI",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+  background-color: rgb(var(--color-bg));
+  color: rgb(var(--color-text));
+}
+
+.hero-grid {
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(59, 130, 246, 0.2), transparent 30%),
+    radial-gradient(circle at 88% 16%, rgba(234, 179, 8, 0.22), transparent 34%),
+    radial-gradient(circle at 50% 95%, rgba(168, 85, 247, 0.2), transparent 30%);
+}
+
+.glass-card {
+  background-color: color-mix(in srgb, rgb(var(--color-surface)) 86%, transparent);
+  border: 1px solid rgb(var(--color-border) / 0.7);
+  backdrop-filter: blur(8px);
+}
