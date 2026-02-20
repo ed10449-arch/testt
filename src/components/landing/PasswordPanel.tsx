@@ -43,18 +43,18 @@ export default function PasswordPanel() {
         >
           <p className="mb-3 inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
             <Lock size={14} />
-            Password Gate Access
+            Chat Access
           </p>
           <h2 className="text-2xl font-black md:text-4xl">
-            Enter the school access code to continue
+            Enter password to join the chatroom
           </h2>
           <p className="mt-3 text-muted">
-            Ask your teacher for the secure four-digit code.
+            Alli and Eddie share the same room.
           </p>
 
           <form className="mt-6 space-y-3" onSubmit={handleSubmit}>
             <label htmlFor="password-input" className="text-sm font-semibold">
-              Classroom Password
+              Chatroom Password
             </label>
             <div className="flex flex-col gap-3 sm:flex-row">
               <input

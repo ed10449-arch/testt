@@ -15,7 +15,7 @@ export default function ProfileSelection() {
             Access Granted
           </p>
           <h1 className="mt-3 text-3xl font-black md:text-5xl">
-            Choose your profile to open the activity page
+            Choose your profile to enter the chat
           </h1>
         </div>
 

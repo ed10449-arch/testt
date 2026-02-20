@@ -1,22 +1,22 @@
 import type { ChatMessage, ProfileId } from "../types/chat";
 
 const CHANNEL_NAME = "classroom-chat-realtime-v1";
+const STORAGE_EVENT_KEY = "classroom-chat-realtime-event-v1";
 const PRESENCE_STALE_MS = 12000;
 const PRESENCE_PING_MS = 4000;
+const SEEN_EVENT_LIMIT = 400;
 const PROFILE_IDS: ProfileId[] = ["alli", "eddie"];
 const TAB_ID = `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 
-type RealtimeEvent =
+type RealtimeEventPayload =
   | {
       type: "message:create";
-      sourceTabId: string;
       payload: {
         message: ChatMessage;
       };
     }
   | {
       type: "message:edit";
-      sourceTabId: string;
       payload: {
         messageId: string;
         nextText: string;
@@ -25,7 +25,6 @@ type RealtimeEvent =
     }
   | {
       type: "message:delete";
-      sourceTabId: string;
       payload: {
         messageId: string;
         requesterId: ProfileId;
@@ -33,7 +32,6 @@ type RealtimeEvent =
     }
   | {
       type: "reaction:toggle";
-      sourceTabId: string;
       payload: {
         messageId: string;
         emoji: string;
@@ -42,7 +40,6 @@ type RealtimeEvent =
     }
   | {
       type: "typing";
-      sourceTabId: string;
       payload: {
         profileId: ProfileId;
         isTyping: boolean;
@@ -50,12 +47,17 @@ type RealtimeEvent =
     }
   | {
       type: "presence";
-      sourceTabId: string;
       payload: {
         profileId: ProfileId;
         isOnline: boolean;
       };
     };
+
+type RealtimeEvent = RealtimeEventPayload & {
+  eventId: string;
+  sourceTabId: string;
+  emittedAt: number;
+};
 
 export interface RealtimeAdapter {
   connect: (
@@ -92,36 +94,119 @@ export interface RealtimeAdapter {
   sendTyping: (profileId: ProfileId, isTyping: boolean) => Promise<void>;
 }
 
-function postEvent(event: RealtimeEvent): void {
-  if (typeof BroadcastChannel === "undefined") {
-    return;
+function createEvent(event: RealtimeEventPayload): RealtimeEvent {
+  return {
+    ...event,
+    eventId: `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
+    sourceTabId: TAB_ID,
+    emittedAt: Date.now(),
+  };
+}
+
+function postEvent(eventPayload: RealtimeEventPayload): void {
+  const event = createEvent(eventPayload);
+
+  if (typeof BroadcastChannel !== "undefined") {
+    const channel = new BroadcastChannel(CHANNEL_NAME);
+    channel.postMessage(event);
+    channel.close();
   }
-  const channel = new BroadcastChannel(CHANNEL_NAME);
-  channel.postMessage(event);
-  channel.close();
+
+  if (typeof window !== "undefined") {
+    try {
+      window.localStorage.setItem(STORAGE_EVENT_KEY, JSON.stringify(event));
+    } catch {
+      // Ignore localStorage failures in restricted environments.
+    }
+  }
 }
 
 function pingPresence(profileId: ProfileId, isOnline: boolean): void {
   postEvent({
     type: "presence",
-    sourceTabId: TAB_ID,
     payload: { profileId, isOnline },
   });
 }
 
 export const localRealtimeAdapter: RealtimeAdapter = {
   connect: (profileId, handlers) => {
-    if (typeof BroadcastChannel === "undefined") {
-      handlers.onPresenceChange(profileId, true);
-      return () => {
-        handlers.onPresenceChange(profileId, false);
-      };
-    }
-
-    const channel = new BroadcastChannel(CHANNEL_NAME);
+    const channel =
+      typeof BroadcastChannel !== "undefined"
+        ? new BroadcastChannel(CHANNEL_NAME)
+        : null;
     const lastPresenceByProfile: Record<ProfileId, number> = {
       alli: 0,
       eddie: 0,
+    };
+    const seenEvents = new Set<string>();
+    const eventQueue: string[] = [];
+
+    const markSeen = (eventId: string): boolean => {
+      if (seenEvents.has(eventId)) {
+        return false;
+      }
+
+      seenEvents.add(eventId);
+      eventQueue.push(eventId);
+      if (eventQueue.length > SEEN_EVENT_LIMIT) {
+        const expired = eventQueue.shift();
+        if (expired) {
+          seenEvents.delete(expired);
+        }
+      }
+
+      return true;
+    };
+
+    const handleEvent = (event: RealtimeEvent) => {
+      if (
+        !event ||
+        typeof event.eventId !== "string" ||
+        event.sourceTabId === TAB_ID ||
+        !markSeen(event.eventId)
+      ) {
+        return;
+      }
+
+      switch (event.type) {
+        case "message:create":
+          handlers.onMessage(event.payload.message);
+          break;
+        case "message:edit":
+          handlers.onMessageEdit(
+            event.payload.messageId,
+            event.payload.nextText,
+            event.payload.requesterId,
+          );
+          break;
+        case "message:delete":
+          handlers.onMessageDelete(
+            event.payload.messageId,
+            event.payload.requesterId,
+          );
+          break;
+        case "reaction:toggle":
+          handlers.onReactionToggle(
+            event.payload.messageId,
+            event.payload.emoji,
+            event.payload.requesterId,
+          );
+          break;
+        case "typing":
+          handlers.onTypingChange(event.payload.profileId, event.payload.isTyping);
+          break;
+        case "presence":
+          if (event.payload.isOnline) {
+            lastPresenceByProfile[event.payload.profileId] = Date.now();
+            handlers.onPresenceChange(event.payload.profileId, true);
+          } else {
+            lastPresenceByProfile[event.payload.profileId] = 0;
+            handlers.onPresenceChange(event.payload.profileId, false);
+          }
+          break;
+        default:
+          break;
+      }
     };
 
     handlers.onPresenceChange(profileId, true);
@@ -145,74 +230,43 @@ export const localRealtimeAdapter: RealtimeAdapter = {
       pingPresence(profileId, true);
     }, PRESENCE_PING_MS);
 
-    channel.onmessage = (event: MessageEvent<RealtimeEvent>) => {
-      const payload = event.data;
-      if (!payload || payload.sourceTabId === TAB_ID) {
+    const onStorageEvent = (event: StorageEvent) => {
+      if (event.key !== STORAGE_EVENT_KEY || !event.newValue) {
         return;
       }
 
-      switch (payload.type) {
-        case "message:create":
-          handlers.onMessage(payload.payload.message);
-          break;
-        case "message:edit":
-          handlers.onMessageEdit(
-            payload.payload.messageId,
-            payload.payload.nextText,
-            payload.payload.requesterId,
-          );
-          break;
-        case "message:delete":
-          handlers.onMessageDelete(
-            payload.payload.messageId,
-            payload.payload.requesterId,
-          );
-          break;
-        case "reaction:toggle":
-          handlers.onReactionToggle(
-            payload.payload.messageId,
-            payload.payload.emoji,
-            payload.payload.requesterId,
-          );
-          break;
-        case "typing":
-          handlers.onTypingChange(
-            payload.payload.profileId,
-            payload.payload.isTyping,
-          );
-          break;
-        case "presence":
-          if (payload.payload.isOnline) {
-            lastPresenceByProfile[payload.payload.profileId] = Date.now();
-            handlers.onPresenceChange(payload.payload.profileId, true);
-          } else {
-            lastPresenceByProfile[payload.payload.profileId] = 0;
-            handlers.onPresenceChange(payload.payload.profileId, false);
-          }
-          break;
-        default:
-          break;
+      try {
+        const payload = JSON.parse(event.newValue) as RealtimeEvent;
+        handleEvent(payload);
+      } catch {
+        // Ignore malformed payloads.
       }
     };
+
+    if (channel) {
+      channel.onmessage = (event: MessageEvent<RealtimeEvent>) => {
+        handleEvent(event.data);
+      };
+    }
+    window.addEventListener("storage", onStorageEvent);
 
     return () => {
       pingPresence(profileId, false);
       window.clearInterval(heartbeat);
       window.clearInterval(handlePresenceTimeout);
-      channel.close();
+      window.removeEventListener("storage", onStorageEvent);
+      channel?.close();
     };
   },
   sendMessage: async (message) => {
     postEvent({
       type: "message:create",
-      sourceTabId: TAB_ID,
       payload: { message },
     });
   },
   sendMessageEdit: async (messageId, nextText, requesterId) => {
     postEvent({
       type: "message:edit",
-      sourceTabId: TAB_ID,
       payload: {
         messageId,
         nextText,
@@ -223,7 +277,6 @@ export const localRealtimeAdapter: RealtimeAdapter = {
   sendMessageDelete: async (messageId, requesterId) => {
     postEvent({
       type: "message:delete",
-      sourceTabId: TAB_ID,
       payload: {
         messageId,
         requesterId,
@@ -233,7 +286,6 @@ export const localRealtimeAdapter: RealtimeAdapter = {
   sendReactionToggle: async (messageId, emoji, requesterId) => {
     postEvent({
       type: "reaction:toggle",
-      sourceTabId: TAB_ID,
       payload: {
         messageId,
         emoji,
@@ -244,7 +296,6 @@ export const localRealtimeAdapter: RealtimeAdapter = {
   sendTyping: async (profileId, isTyping) => {
     postEvent({
       type: "typing",
-      sourceTabId: TAB_ID,
       payload: {
         profileId,
         isTyping,
