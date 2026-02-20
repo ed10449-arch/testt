@@ -63,7 +63,9 @@ export default function ChatRoom() {
 
   const [draft, setDraft] = useState("");
   const [editingMessageId, setEditingMessageId] = useState<string | null>(null);
-  const bottomRef = useAutoScroll(messages.at(-1)?.id, "auto");
+  const lastMessageId =
+    messages.length > 0 ? messages[messages.length - 1]?.id : undefined;
+  const bottomRef = useAutoScroll(lastMessageId, "auto");
 
   useEffect(() => {
     if (!activeProfileId) {
