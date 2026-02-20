@@ -1,12 +1,12 @@
 # Classroom Chat Interface
 
-A fully styled school activity portal web app with:
+A fully styled classroom chat web app with:
 
 - Animated landing page with smooth vertical scrolling
 - Password gate (demo password: `0327`)
 - Profile selection (Alli / Eddie)
-- School activity dashboard + compact team update feed
-- Compact feed with reactions, edit/delete, timestamps, and emoji support
+- Alli/Eddie profile entry and chat room
+- Compact chat feed with reactions, edit/delete, timestamps, and emoji support
 - Light/Dark theme toggle with CSS variable-driven theming
 - Framer Motion + GSAP animation support
 - Zustand state management and persistence

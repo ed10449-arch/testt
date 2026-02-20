@@ -13,7 +13,8 @@ interface AppState {
   lockGate: () => void;
   selectProfile: (profileId: ProfileId) => void;
   leaveChat: () => void;
-  sendMessage: (authorId: ProfileId, text: string) => void;
+  sendMessage: (authorId: ProfileId, text: string) => ChatMessage | null;
+  receiveMessage: (message: ChatMessage) => void;
   editMessage: (messageId: string, nextText: string, requesterId: ProfileId) => void;
   deleteMessage: (messageId: string, requesterId: ProfileId) => void;
   toggleReaction: (messageId: string, emoji: string, requesterId: ProfileId) => void;
@@ -41,7 +42,7 @@ export const useAppStore = create<AppState>()(
       sendMessage: (authorId, text) => {
         const normalized = text.trim();
         if (!normalized) {
-          return;
+          return null;
         }
         const nextMessage: ChatMessage = {
           id: createMessageId(),
@@ -53,7 +54,18 @@ export const useAppStore = create<AppState>()(
         set((state) => ({
           messages: [...state.messages, nextMessage],
         }));
+        return nextMessage;
       },
+      receiveMessage: (message) =>
+        set((state) => {
+          const exists = state.messages.some((item) => item.id === message.id);
+          if (exists) {
+            return state;
+          }
+          return {
+            messages: [...state.messages, message],
+          };
+        }),
       editMessage: (messageId, nextText, requesterId) => {
         const normalized = nextText.trim();
         if (!normalized) {

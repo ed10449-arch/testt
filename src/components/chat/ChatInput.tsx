@@ -76,7 +76,7 @@ export default function ChatInput({
           onChange={(event) => onDraftChange(event.target.value)}
           onKeyDown={handleKeyDown}
           rows={2}
-          placeholder="Post a quick update..."
+          placeholder="Type a message..."
           className={`flex-1 resize-none rounded-xl border border-border bg-surface px-3 py-2 text-sm outline-none transition focus:border-accent focus:ring-2 focus:ring-accent/40 ${
             compact ? "min-h-[44px]" : "min-h-[52px]"
           }`}

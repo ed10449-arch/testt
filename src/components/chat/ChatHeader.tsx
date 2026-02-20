@@ -1,16 +1,18 @@
 import { motion } from "framer-motion";
-import { CalendarDays, LogOut } from "lucide-react";
+import { Circle, LogOut } from "lucide-react";
 import type { UserProfile } from "../../types/chat";
 
 interface ChatHeaderProps {
   currentProfile: UserProfile;
   partnerProfile: UserProfile;
+  partnerOnline: boolean;
   onLeave: () => void;
 }
 
 export default function ChatHeader({
   currentProfile,
   partnerProfile,
+  partnerOnline,
   onLeave,
 }: ChatHeaderProps) {
   return (
@@ -23,7 +25,7 @@ export default function ChatHeader({
             {currentProfile.avatar}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm text-muted">School activities portal</p>
+            <p className="truncate text-sm text-muted">Alli & Eddie Chat Room</p>
             <h1 className="truncate text-lg font-black">
               {currentProfile.name}
               <span className="ml-2 text-xs font-medium text-muted">
@@ -34,9 +36,12 @@ export default function ChatHeader({
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 rounded-full border border-border px-3 py-1 text-xs text-muted sm:flex">
-            <CalendarDays size={13} />
-            Shared with {partnerProfile.name}
+          <div className="flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs text-muted">
+            <Circle
+              size={10}
+              className={partnerOnline ? "fill-emerald-400 text-emerald-400" : "fill-slate-400 text-slate-400"}
+            />
+            {partnerProfile.name} is {partnerOnline ? "online" : "offline"}
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}

@@ -1,4 +1,4 @@
-import { useMemo, type RefObject } from "react";
+import { useMemo, type RefObject, type UIEventHandler } from "react";
 import { getProfileById } from "../../data/profiles";
 import type { ChatMessage, ProfileId } from "../../types/chat";
 import { buildTimelineItems } from "../../utils/time";
@@ -9,7 +9,10 @@ interface MessageListProps {
   currentProfileId: ProfileId;
   compact?: boolean;
   className?: string;
+  emptyLabel?: string;
   bottomRef: RefObject<HTMLDivElement | null>;
+  scrollContainerRef?: RefObject<HTMLElement | null>;
+  onScroll?: UIEventHandler<HTMLElement>;
   onEditRequest: (message: ChatMessage) => void;
   onDelete: (messageId: string) => void;
   onToggleReaction: (messageId: string, emoji: string) => void;
@@ -20,7 +23,10 @@ export default function MessageList({
   currentProfileId,
   compact = false,
   className = "",
+  emptyLabel = "No messages yet. Start the conversation.",
   bottomRef,
+  scrollContainerRef,
+  onScroll,
   onEditRequest,
   onDelete,
   onToggleReaction,
@@ -29,12 +35,14 @@ export default function MessageList({
 
   return (
     <section
+      ref={scrollContainerRef}
+      onScroll={onScroll}
       className={`glass-card flex-1 overflow-y-auto rounded-2xl border border-border shadow-soft ${compact ? "p-2.5" : "p-4"} ${className}`}
     >
       <div className={compact ? "space-y-2" : "space-y-3"}>
         {timeline.length === 0 && (
           <div className="rounded-xl border border-dashed border-border px-3 py-6 text-center text-xs text-muted">
-            No updates yet. Post the first activity note.
+            {emptyLabel}
           </div>
         )}
 
