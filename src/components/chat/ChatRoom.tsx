@@ -15,7 +15,6 @@ const TYPING_RESET_MS = 2200;
 export default function ChatRoom() {
   const activeProfileId = useAppStore((state) => state.activeProfileId);
   const messages = useAppStore((state) => state.messages);
-  const messagesVersion = useAppStore((state) => state.messagesVersion);
   const leaveChat = useAppStore((state) => state.leaveChat);
   const sendMessage = useAppStore((state) => state.sendMessage);
   const receiveMessage = useAppStore((state) => state.receiveMessage);
@@ -83,6 +82,9 @@ export default function ChatRoom() {
     }));
 
     const disconnect = localRealtimeAdapter.connect(activeProfileId, {
+      onMessagesSync: (syncedMessages) => {
+        replaceMessages(syncedMessages);
+      },
       onMessage: (message) => {
         receiveMessage(message);
         setOnlineByProfile((state) => ({
@@ -168,44 +170,10 @@ export default function ChatRoom() {
     activeProfileId,
     deleteMessage,
     editMessage,
+    replaceMessages,
     receiveMessage,
     toggleReaction,
   ]);
-
-  useEffect(() => {
-    const onStorage = (event: StorageEvent) => {
-      if (event.key !== "classroom-chat-storage" || !event.newValue) {
-        return;
-      }
-
-      try {
-        const payload = JSON.parse(event.newValue) as {
-          state?: {
-            messages?: ChatMessage[];
-            messagesVersion?: number;
-          };
-        };
-
-        const nextMessages = payload.state?.messages;
-        const nextVersion = payload.state?.messagesVersion;
-        if (!Array.isArray(nextMessages) || typeof nextVersion !== "number") {
-          return;
-        }
-        if (nextVersion <= messagesVersion) {
-          return;
-        }
-
-        replaceMessages(nextMessages, nextVersion);
-      } catch {
-        // Ignore malformed storage payloads.
-      }
-    };
-
-    window.addEventListener("storage", onStorage);
-    return () => {
-      window.removeEventListener("storage", onStorage);
-    };
-  }, [messagesVersion, replaceMessages]);
 
   useEffect(() => {
     if (!activeProfileId) {

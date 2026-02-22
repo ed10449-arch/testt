@@ -9,6 +9,7 @@ A fully styled classroom chat web app with:
 - Compact chat feed with reactions, edit/delete, timestamps, and emoji support
 - Light/Dark theme toggle with CSS variable-driven theming
 - Framer Motion + GSAP animation support
+- Socket.IO realtime transport for cross-device messaging
 - Zustand state management and persistence
 
 ## Stack
@@ -17,6 +18,7 @@ A fully styled classroom chat web app with:
 - **Tailwind CSS**
 - **Framer Motion**
 - **GSAP**
+- **Socket.IO (server + client)**
 - **Zustand**
 - **Day.js**
 
