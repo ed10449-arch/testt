@@ -2,7 +2,7 @@ import type { ChatMessage, ProfileId } from "../types/chat";
 
 const CHANNEL_NAME = "classroom-chat-realtime-v1";
 const STORAGE_EVENT_KEY = "classroom-chat-realtime-event-v1";
-const PRESENCE_STALE_MS = 12000;
+const PRESENCE_STALE_MS = 90000;
 const PRESENCE_PING_MS = 4000;
 const SEEN_EVENT_LIMIT = 400;
 const PROFILE_IDS: ProfileId[] = ["alli", "eddie"];
@@ -230,6 +230,13 @@ export const localRealtimeAdapter: RealtimeAdapter = {
       pingPresence(profileId, true);
     }, PRESENCE_PING_MS);
 
+    const onVisibilityChange = () => {
+      if (!document.hidden) {
+        pingPresence(profileId, true);
+      }
+    };
+    document.addEventListener("visibilitychange", onVisibilityChange);
+
     const onStorageEvent = (event: StorageEvent) => {
       if (event.key !== STORAGE_EVENT_KEY || !event.newValue) {
         return;
@@ -254,6 +261,7 @@ export const localRealtimeAdapter: RealtimeAdapter = {
       pingPresence(profileId, false);
       window.clearInterval(heartbeat);
       window.clearInterval(handlePresenceTimeout);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
       window.removeEventListener("storage", onStorageEvent);
       channel?.close();
     };

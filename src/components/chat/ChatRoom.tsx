@@ -83,15 +83,31 @@ export default function ChatRoom() {
     const disconnect = localRealtimeAdapter.connect(activeProfileId, {
       onMessage: (message) => {
         receiveMessage(message);
+        setOnlineByProfile((state) => ({
+          ...state,
+          [message.authorId]: true,
+        }));
       },
       onMessageEdit: (messageId, nextText, requesterId) => {
         editMessage(messageId, nextText, requesterId);
+        setOnlineByProfile((state) => ({
+          ...state,
+          [requesterId]: true,
+        }));
       },
       onMessageDelete: (messageId, requesterId) => {
         deleteMessage(messageId, requesterId);
+        setOnlineByProfile((state) => ({
+          ...state,
+          [requesterId]: true,
+        }));
       },
       onReactionToggle: (messageId, emoji, requesterId) => {
         toggleReaction(messageId, emoji, requesterId);
+        setOnlineByProfile((state) => ({
+          ...state,
+          [requesterId]: true,
+        }));
       },
       onTypingChange: (profileId, isTyping) => {
         if (profileId === activeProfileId) {
@@ -107,6 +123,13 @@ export default function ChatRoom() {
           ...state,
           [profileId]: isTyping,
         }));
+
+        if (isTyping) {
+          setOnlineByProfile((state) => ({
+            ...state,
+            [profileId]: true,
+          }));
+        }
 
         if (isTyping) {
           typingTimeoutsRef.current[profileId] = window.setTimeout(() => {

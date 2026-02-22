@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import ChatRoom from "./components/chat/ChatRoom";
 import LandingPage from "./components/landing/LandingPage";
@@ -25,25 +24,7 @@ export default function App() {
   const theme = useAppStore((state) => state.theme);
   const passwordUnlocked = useAppStore((state) => state.passwordUnlocked);
   const activeProfileId = useAppStore((state) => state.activeProfileId);
-  const lockGate = useAppStore((state) => state.lockGate);
   useThemeEffect(theme);
-
-  useEffect(() => {
-    if (!passwordUnlocked) {
-      return;
-    }
-
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        lockGate();
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
-  }, [lockGate, passwordUnlocked]);
 
   const stage = !passwordUnlocked
     ? "landing"
